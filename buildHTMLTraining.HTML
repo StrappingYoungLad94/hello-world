@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+	<!--Stickers for who can tell me waht this does-->
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  	
+	
+	<body>
+		<div style="background-color: #d0522d; width: 1000px; height: 600px; margin-left: 300px; border-radius: 25px;">
+			<div>
+				<a href="#">
+                    <img class="smaller-image thick-black-border" src="http://1.bp.blogspot.com/_5CvU3ybiFRI/TToH6yspzLI/AAAAAAAAAeY/DAZkLWDMRxw/s1600/thermometer%2Bin%2Blips.png" width="200" height="160" align="left" />
+                </a>
+				<h1 style= "color: black" "text-align: center"; margin-top -10px; ><strong>Exploding Thermometer</strong></h1>
+                <a href="#">
+                    <img class="smaller-image thick-black-border" src="http://images.clipartpanda.com/scandal-clipart-Outrage-Meter.png" width="100" height="200" align="right" />
+                </a>
+				<h1 style="text-align: center; padding-top: 50px;">HOT weather updates here! (Hopefully, no @#!%$*# snow)</h1>
+				<div class="row">
+					<div class="form" style="padding-top: 25px; margin-center: 15px;">
+						<form>
+							<div class="col-lg-3" style="margin-bottom: 5px;">
+								<label for="cityMenu">Coming to a city near you!</label>
+								<select class="form-control" id ="cityMenu" placeholder="Select a City" style="border-radius: 5px; width: 150px;">
+									<option>Richwood</option>
+									<option>Craigsville</option>
+									<option>Summersville</option>
+									<option>Fayetteville</option>					
+								</select>								
+							</div>
+							<!---->
+						</form>
+					</div>
+				</div>
+			</div>
+			<!--Table-->
+			<div>
+				<table class="table table-striped table-bordered" style="background-color: #fff;" cellspacing="0" width="100%">
+					<thead>
+						<tr>
+							<th>Poor Bastards</th>
+							<th>Hot or Cold?</th>
+							<th>Clouds and $#!@</th>
+							<th>With a Chance of Meatballs</th>
+							<th>WOOSH!</th>
+						</tr>
+						<tr id="table1">
+							<!--insert HTML on the fly-->
+						</tr>
+					</thead>
+				</table>
+			</div>
+			<div style="margin-bottom: 5px;">
+			<div class="col-lg-3">
+					<label for="customCity">U.S City</label>
+					<input class="form-control" style="width: 150px;" type="text" id="customCity" placeholder="e.g. Anchorage" required/>
+				</div>
+				<div class="col-lg-3">
+					<label for="customCity">U.S. State</label>
+					<input class="form-control" style="width: 150px;" type="text" id="customState" placeholder="e.g. AK" required/>
+				</div>
+				<div>
+                    <div class="shake shake-constant">
+					<button class="btn btn-success" style= "margin-top: 25px;" type="submit" id="button"><b>Do You Feel Lucky?</b></button>
+				</div>
+			</div>
+			<div style="display: none;" id="hiddenTable">
+				<table class="table table-striped table-bordered" style="background-color: #fff;" cellspacing="0" width="100%">
+					<thead>
+						<tr>
+							<th>Location</th>
+							<th>Temperature</th>
+							<th>Weather Icon</th>
+							<th>Conditions</th>
+							<th>Wind</th>
+						</tr>
+						<tr id="table2">
+							<!--insert HTML on the fly-->
+						</tr>
+					</thead>
+				</table>
+			</div>
+		</div>
+		
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> 		
+
+
+<script>
+	
+//when the document loads this will "run"
+jQuery(document).ready(function($) {
+	
+	//declare our global variables
+	var cityRegional = $('#cityMenu').val();
+	var stateRegional = "WV";
+	var cityNational = "";
+	var stateNational = "";
+	
+	//set the value for the regional table
+	//on page load so that we have something to display
+	$('#cityMenu').on('change', function(){
+		cityRegional = $('#cityMenu').val();
+		getRegionalWeather();
+	})
+	
+	getRegionalWeather();
+	
+	
+	
+	//make our call to the API url to get our json object
+function getRegionalWeather(){
+  $.ajax({
+	  url : "http://api.wunderground.com/api/f5f4f78007917912/conditions/q/" + stateRegional + "/" + cityRegional + ".json",
+	  dataType : "jsonp",
+	  success : function(parsed_json) {		 
+		  populateTable1(parsed_json);
+	  }
+	  //error handler is missing!!!!!!!
+  });
+}
+	
+	//function to fill Regional weather conditions table
+	function populateTable1(withData) {
+		
+		//create variables to use the data we have extracted
+		var location = withData['current_observation']['display_location']['full'];
+  		var temp_f = withData['current_observation']['temp_f'];
+  		var weather = withData['current_observation']['weather'];
+  		var wind = withData['current_observation']['wind_string'];
+		var image = withData['current_observation']['image']['url'];
+		var icon = withData['current_observation']['icon_url'];		
+		//console.log(image);
+		
+		//create a variable to use in our jQuery method
+		var buildHTML = "";
+		
+		//set the value with data from our json object
+		buildHTML += "<td><b>" + location + "</b></td>";
+		buildHTML += "<td>" + temp_f + "</td>";
+		buildHTML += "<td><img src='" + icon + "'></td>";
+		buildHTML += "<td>" + weather + "</td>";
+		buildHTML += "<td>" + wind + "</td>";
+		
+		//.html() is used to insert our
+		//variable above as actual HTML
+		$('#table1').html(buildHTML);
+		//set image attribute to weather icon
+		//from json data
+		$('.picture').attr("src", image);
+	}
+	
+function getNationalWeather(){
+  $.ajax({
+	  url : "http://api.wunderground.com/api/f5f4f78007917912/conditions/q/" + stateNational + "/" + cityNational + ".json",
+	  dataType : "jsonp",
+	  success : function(parsed_json) {		
+		  populateTable2(parsed_json);
+	  }
+	  //error handler is missing!!!!!!!
+  });
+}
+	//fill the national table with data
+	function populateTable2(withData) {
+		
+		//create variables to use the data we have extracted
+		var location = withData['current_observation']['display_location']['full'];
+  		var temp_f = withData['current_observation']['temp_f'];
+  		var weather = withData['current_observation']['weather'];
+  		var wind = withData['current_observation']['wind_string'];
+		var image = withData['current_observation']['image']['url'];
+		var icon = withData['current_observation']['icon_url'];		
+		//console.log(image);
+		
+		//create a variable to use in our jQuery method
+		var buildHTML = "";
+		
+		//set the value with data from our json object
+		buildHTML += "<td><b>" + location + "</b></td>";
+		buildHTML += "<td>" + temp_f + "</td>";
+		buildHTML += "<td><img src='" + icon + "'></td>";
+		buildHTML += "<td>" + weather + "</td>";
+		buildHTML += "<td>" + wind + "</td>";
+		
+		//.html() is used to insert our
+		//variable above as actual HTML
+		$('#table2').html(buildHTML);
+	}
+	
+	$('#button').on("click", function() {
+		cityNational = $('#customCity').val();
+		stateNational = $('#customState').val();
+		//console.log(city + " " + state);
+		if ($('#customCity').val() === "" || $('#customState').val() === "") {
+			//$('#customCity, #customState').css("background", "red");
+			alert("Both U.S. City and State Are Required");
+			location.reload();
+		} else { 
+		getNationalWeather();
+			$('#hiddenTable').slideDown();
+			
+		}
+	})
+	
+});
+</script>
+		
+	</body>
+	
+</html>
